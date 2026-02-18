@@ -541,6 +541,7 @@ GameObject:
   - component: {fileID: 1603932912}
   - component: {fileID: 1603932911}
   - component: {fileID: 1603932913}
+  - component: {fileID: 1603932914}
   m_Layer: 5
   m_Name: Board
   m_TagString: Untagged
@@ -621,8 +622,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   nodeSpawner: {fileID: 2021461030}
+  touchController: {fileID: 1603932914}
   blockPrefab: {fileID: 6702086114578409884, guid: eeca1122983361c4881786f0b3d7e5f5, type: 3}
   blockRect: {fileID: 1299255257}
+--- !u!114 &1603932914
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1603932909}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 117bccae446e43d4e8ca7f33ea36e9e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dragDistance: 25
 --- !u!1 &2021461025
 GameObject:
   m_ObjectHideFlags: 0
