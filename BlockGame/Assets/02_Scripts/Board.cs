@@ -10,6 +10,8 @@ public class Board : MonoBehaviour
     [SerializeField]
     private TouchController touchController;
     [SerializeField]
+    private UIController uiController;
+    [SerializeField]
     private GameObject blockPrefab;
     [SerializeField]
     private Transform blockRect;
@@ -21,12 +23,30 @@ public class Board : MonoBehaviour
 
     private State state = State.Wait;   //현재 상태 (대기, 이동 병합, 후처리)
 
+    private int currentScore;
+    private int highScore;
+    private float blockSize;    //블록 크기(맵 크기에 따라 블록 크기 설정)
+
     private void Awake()
     {
-        BlockCount = new Vector2Int(4, 4);
-        NodeList = nodeSpawner.SpawnNodes(this,BlockCount);  //노드 블록 판 생성, 모든 노드의 정보를 NodeList에 저장
+        //BlockCount = new Vector2Int(4, 4);
+        int count = PlayerPrefs.GetInt("BlockCount");
+        BlockCount = new Vector2Int(count, count);
+
+        //블록 크기 설정 = (블록이 배치되는 보드 크기 - Padding - Spacing * (블록 개수 -1)) / 블록개수
+        blockSize = (1080 - 85 - 25 * (BlockCount.x - 1)) / BlockCount.x;
+
+        NodeList = nodeSpawner.SpawnNodes(this,BlockCount, blockSize);  //노드 블록 판 생성, 모든 노드의 정보를 NodeList에 저장
 
         blockList = new List<Block>();
+
+        //점수 생성
+        currentScore = 0;
+        uiController.UpdateCurrentScore(currentScore);
+
+        highScore = PlayerPrefs.GetInt("HighScore");
+        uiController.UpdateHighScore(highScore);
+
     }
 
     private void Start()
@@ -87,6 +107,8 @@ public class Board : MonoBehaviour
         Block block = clone.GetComponent<Block>();
         Node node = NodeList[y* BlockCount.x + x];
 
+
+        clone.GetComponent<RectTransform>().sizeDelta = new Vector2(blockSize, blockSize);
         clone.GetComponent<RectTransform>().localPosition = node.localPosition;     //생성한 블록의 위치를 노드의 위치와 동일하게 설정
         block.Setup();
         node.placedBlock = block;       //방금생성한 블록을 노드에 등록
@@ -235,6 +257,7 @@ public class Board : MonoBehaviour
             //removeBlocks의 모든 블록을 blockList에서 제외하고 블록 삭제
             removeBlocks.ForEach(x =>
             {
+                currentScore += x.Numeric * 2;  //병합으로 삭제되는 블록의 숫자 X2
                 blockList.Remove(x);
                 Destroy(x.gameObject);
             });
@@ -248,6 +271,8 @@ public class Board : MonoBehaviour
             SpawnBlockToRandomNode();
             //모든 블록의 이동 병합이 종료되면 모든 노드의 combined를 false로
             NodeList.ForEach(x => x.combined = false);
+
+            uiController.UpdateCurrentScore(currentScore);
         }
     }
 
@@ -285,6 +310,11 @@ public class Board : MonoBehaviour
 
     private void OnGameOver()
     {
-        Debug.Log("GameOver");
+        uiController.OnGameOver();
+
+        if (currentScore >= highScore)
+        {
+            PlayerPrefs.SetInt("HighScore", currentScore);
+        }
     }
 }
